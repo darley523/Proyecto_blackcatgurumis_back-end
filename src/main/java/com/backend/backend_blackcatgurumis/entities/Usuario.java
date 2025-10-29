@@ -16,7 +16,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "usuario", uniqueConstraints = {@UniqueConstraint(columnNames = {"email"} )} )
+@Table(name = "usuario", uniqueConstraints = {@UniqueConstraint(columnNames = {"email"}),
+                                            @UniqueConstraint(columnNames = {"rut"})} )
+
 public class Usuario implements UserDetails {
     
     @Id
@@ -30,6 +32,10 @@ public class Usuario implements UserDetails {
 
     @Column(nullable = false)
     private String password;
+
+    private String telefono;
+
+    private String rut;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinTable(
