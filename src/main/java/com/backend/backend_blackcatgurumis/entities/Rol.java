@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 public class Rol {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    //Integer porque es mas pequeño (no habran muchos roles)
     private Integer id;
 
     private String nombre; // ROLE_USER o ROLE_ADMIN
