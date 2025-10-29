@@ -28,6 +28,7 @@ public class Producto {
     private Long precio;
     private Boolean activo = true;
     private Integer stock;
+    private String imagenUrl;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "categoria_id")
