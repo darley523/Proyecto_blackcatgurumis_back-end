@@ -6,7 +6,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.beans.factory.annotation.Value; // para leer la clave secreta desde application.properties
+import org.springframework.security.core.GrantedAuthority; // Importar para obtener roles
+import org.springframework.beans.factory.annotation.Value; 
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -14,11 +15,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors; // Importar para procesar roles
 
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret}") //Lee la clave desde application.properties
+    @Value("${jwt.secret}") // Lee la clave desde application.properties
     private String SECRET_KEY;
 
     public String extractUsername(String token) {
@@ -30,18 +32,31 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
+    // Este método ahora crea las claims adicionales incluyendo roles
     public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+        // Crear mapa para claims adicionales
+        Map<String, Object> extraClaims = new HashMap<>();
+        
+        // Extraer roles del UserDetails como una lista de Strings
+        Object roles = userDetails.getAuthorities().stream()
+                           .map(GrantedAuthority::getAuthority) // Convertir GrantedAuthority a String (ej: "ROLE_ADMIN")
+                           .collect(Collectors.toList()); 
+        
+        // Añadir la lista de roles al mapa de claims con la clave "roles"
+        extraClaims.put("roles", roles); 
+
+        // Llamar al método sobrecargado pasándole las claims
+        return generateToken(extraClaims, userDetails); 
     }
 
-
+    // Este método construye el token final con las claims proporcionadas
     public String generateToken(
             Map<String, Object> extraClaims,
             UserDetails userDetails
     ) {
         return Jwts.builder()
-                .setClaims(extraClaims)
-                .setSubject(userDetails.getUsername()) // Aquí se guarda el email del usuario
+                .setClaims(extraClaims) // Incluye las claims (ahora con roles)
+                .setSubject(userDetails.getUsername()) // Guarda el email del usuario
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24 horas de validez
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)

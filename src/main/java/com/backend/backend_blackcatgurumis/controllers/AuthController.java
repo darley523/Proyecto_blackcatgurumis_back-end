@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @CrossOrigin(origins = "http://localhost:5173") // Permite llamadas desde React
 public class AuthController {
 
+
     // Inyecta la interfaz del servicio de autenticación
     private final AuthService authService;
 
