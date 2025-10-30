@@ -47,11 +47,11 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Origen permitido (tu frontend React)
+        // Origen permitido 
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
-        // Métodos permitidos (IMPORTANTE incluir OPTIONS)
+        // Métodos permitidos 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        // Cabeceras permitidas (IMPORTANTE incluir Authorization)
+        // Cabeceras permitidas 
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -64,16 +64,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // 1. APLICAR LA CONFIGURACIÓN GLOBAL DE CORS
+            // Aplicar la configuración de CORS
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-            // 2. Deshabilitar CSRF
+            // Deshabilitar CSRF
             .csrf(AbstractHttpConfigurer::disable)
 
-            // 3. Sesión sin estado
+            // Sesión sin estado
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-            // 4. Configurar la autorización
+            // Configurar la autorización
             .authorizeHttpRequests(auth -> auth
 
                 // RUTAS PÚBLICAS
@@ -99,7 +99,7 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
 
-            // 5. AÑADIR EL FILTRO DE JWT
+            // AÑADIR EL FILTRO DE JWT
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

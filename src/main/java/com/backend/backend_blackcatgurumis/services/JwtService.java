@@ -32,7 +32,7 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    // Este método ahora crea las claims adicionales incluyendo roles
+    // Este método  crea las claims adicionales incluyendo roles
     public String generateToken(UserDetails userDetails) {
         // Crear mapa para claims adicionales
         Map<String, Object> extraClaims = new HashMap<>();
