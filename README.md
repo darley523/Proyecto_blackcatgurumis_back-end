@@ -6,9 +6,10 @@ Requisitos para ejecutar el proyecto completo (backend-frontend)-> Vs code (con 
 
 1.Abrir Xampp y dar start en los modulos de apache y MySqlWorkbench
 2.Abrir MySqlWorkbench y crear una conexion de usuario root y contraseña vacia
-3.En vs code abrir proyecto_blackcatugurumis_back-end 
-4.En vs code buscar a la izquierda el icono de Spring Boot Dashboard y darle a ejecutar a blackend-blackcatgurumis
-5.-Inicializar proyecto react con npm run dev (en caso de error ejecutar npm install)
+3.En MySqlWorkbench crear un nuevo scheme de nombre blackcatgurumi
+4.En vs code abrir proyecto_blackcatugurumis_back-end 
+5.En vs code buscar a la izquierda el icono de Spring Boot Dashboard y darle a ejecutar a blackend-blackcatgurumis (esto creara la estructura de la base de datos)
+6.Abrir proyecto_blackcatgurumis_front-end
 
 Documentación Swagger
 http://localhost:8080/swagger-ui/index.html
