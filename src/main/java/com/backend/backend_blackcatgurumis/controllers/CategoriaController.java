@@ -9,10 +9,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 @RestController
 @RequestMapping("/api") // Define la ruta base
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:5173")
+@SecurityRequirement(name = "token")
 public class CategoriaController {
 
     // Inyecta la interfaz del servicio de categorías
@@ -24,6 +28,7 @@ public class CategoriaController {
      * Endpoint para obtener todas las categorías.
      * GET /api/categorias
      */
+    @Operation(summary = "Obtiene todas las categorías disponibles")
     @GetMapping("/categorias")
     public ResponseEntity<List<Categoria>> listarCategorias() {
         List<Categoria> categorias = categoriaService.listarTodas();
@@ -34,6 +39,7 @@ public class CategoriaController {
      * Endpoint para obtener una categoría por su ID.
      * GET /api/categorias/{id}
      */
+    @Operation(summary = "Obtiene una categoría por su ID")
     @GetMapping("/categorias/{id}")
     public ResponseEntity<Categoria> obtenerCategoriaPorId(@PathVariable Long id) {
         Categoria categoria = categoriaService.obtenerPorId(id);
@@ -46,6 +52,7 @@ public class CategoriaController {
      * Endpoint para crear una nueva categoría (Admin).
      * POST /api/admin/categorias
      */
+    @Operation(summary = "Crea una nueva categoría (solo administradores)")
     @PostMapping("/admin/categorias")
     public ResponseEntity<Categoria> crearCategoria(@RequestBody Categoria categoria) {
         Categoria nuevaCategoria = categoriaService.crearCategoria(categoria);
@@ -56,6 +63,7 @@ public class CategoriaController {
      * Endpoint para actualizar una categoría (Admin).
      * PUT /api/admin/categorias/{id}
      */
+    @Operation(summary = "Actualiza una categoría existente (solo administradores)")
     @PutMapping("/admin/categorias/{id}")
     public ResponseEntity<Categoria> actualizarCategoria(
             @PathVariable Long id, 
@@ -68,6 +76,7 @@ public class CategoriaController {
      * Endpoint para eliminar una categoría (Admin).
      * DELETE /api/admin/categorias/{id}
      */
+    @Operation(summary = "Elimina una categoría (solo administradores)")
     @DeleteMapping("/admin/categorias/{id}")
     public ResponseEntity<Void> eliminarCategoria(@PathVariable Long id) {
         categoriaService.eliminarCategoria(id);

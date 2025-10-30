@@ -9,10 +9,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 @RestController
 @RequestMapping("/api") // Define la ruta base
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:5173") // Permite la comunicación con React
+@SecurityRequirement(name = "token")
 public class ProductoController {
 
     // Inyecta la interfaz del servicio de productos
@@ -24,6 +28,7 @@ public class ProductoController {
      * Endpoint para obtener todos los productos.
      * GET /api/productos
      */
+    @Operation(summary = "Obtiene todos los productos disponibles")
     @GetMapping("/productos")
     public ResponseEntity<List<Producto>> listarProductos() {
         List<Producto> productos = productoService.listarTodos();
@@ -34,6 +39,7 @@ public class ProductoController {
      * Endpoint para obtener un producto por su ID.
      * GET /api/productos/{id}
      */
+    @Operation(summary = "Obtiene un producto por su ID")
     @GetMapping("/productos/{id}")
     public ResponseEntity<Producto> obtenerProductoPorId(@PathVariable Long id) {
         Producto producto = productoService.obtenerPorId(id);
@@ -46,6 +52,7 @@ public class ProductoController {
      * Endpoint para crear un nuevo producto (Admin).
      * POST /api/admin/productos
      */
+    @Operation(summary = "Crea un nuevo producto (solo administradores)")
     @PostMapping("/admin/productos")
     public ResponseEntity<Producto> crearProducto(@RequestBody Producto producto) {
         Producto nuevoProducto = productoService.crearProducto(producto);
@@ -56,6 +63,7 @@ public class ProductoController {
      * Endpoint para actualizar un producto existente (Admin).
      * PUT /api/admin/productos/{id}
      */
+    @Operation(summary = "Actualiza un producto existente (solo administradores)")
     @PutMapping("/admin/productos/{id}")
     public ResponseEntity<Producto> actualizarProducto(
             @PathVariable Long id, 
@@ -68,6 +76,7 @@ public class ProductoController {
      * Endpoint para eliminar un producto (Admin).
      * DELETE /api/admin/productos/{id}
      */
+    @Operation(summary = "Elimina un producto (solo administradores)")
     @DeleteMapping("/admin/productos/{id}")
     public ResponseEntity<Void> eliminarProducto(@PathVariable Long id) {
         productoService.eliminarProducto(id);

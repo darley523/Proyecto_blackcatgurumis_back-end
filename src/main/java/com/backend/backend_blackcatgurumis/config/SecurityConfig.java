@@ -80,7 +80,10 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/api/auth/**",
                     "/api/productos/**",
-                    "/api/categorias/**"
+                    "/api/categorias/**",
+                    "/v3/api-docs/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html"
                 ).permitAll()
 
                 // PERMISO EXPLÍCITO PARA BORRAR USUARIOS (ADMIN)

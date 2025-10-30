@@ -8,6 +8,7 @@ import com.backend.backend_blackcatgurumis.dto.LoginRequest;
 import com.backend.backend_blackcatgurumis.dto.RegisterRequest;
 import com.backend.backend_blackcatgurumis.services.AuthService; 
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -29,6 +30,7 @@ public class AuthController {
      * Endpoint para iniciar sesión
      * POST /api/auth/login
      */
+    @Operation(summary = "Inicia sesión de un usuario y devuelve un token JWT")
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         // Llama al servicio para procesar el login
@@ -42,6 +44,7 @@ public class AuthController {
      * Endpoint para registrar un nuevo usuario
      * POST /api/auth/register
      */
+    @Operation(summary = "Registra un nuevo usuario y devuelve un token JWT")
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
         // Llama al servicio para procesar el registro
