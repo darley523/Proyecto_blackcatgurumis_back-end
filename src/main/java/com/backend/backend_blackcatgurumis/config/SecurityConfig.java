@@ -12,90 +12,92 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.cors.CorsConfiguration; // IMPORTAR
+import org.springframework.web.cors.CorsConfigurationSource; // IMPORTAR
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource; // IMPORTAR
+import java.util.Arrays; // IMPORTAR
 
-import com.backend.backend_blackcatgurumis.services.UserDetailsServiceImpl; 
-@Configuration 
+import com.backend.backend_blackcatgurumis.config.filters.JwtAuthenticationFilter;
+import com.backend.backend_blackcatgurumis.services.UserDetailsServiceImpl;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+@Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    // Permitir CORS en todos los endpoints /api/** para el frontend en localhost:5173
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/api/**")
-                        .allowedOrigins("http://localhost:5173")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
-                registry.addMapping("/api/usuarios/**")
-                        .allowedOrigins("http://localhost:5173")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
-                registry.addMapping("/api/users/**")
-                        .allowedOrigins("http://localhost:5173")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
-            }
-        };
-    }
 
-    // Spring inyectará automáticamente UserDetailsServiceImpl aquí.
     private final UserDetailsService userDetailsService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    // CONSTRUCTOR PARA INYECCIÓN DE DEPENDENCIAS 
-    public SecurityConfig(UserDetailsServiceImpl userDetailsService) {
+    public SecurityConfig(UserDetailsServiceImpl userDetailsService, JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.userDetailsService = userDetailsService;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
-
-    // --- Componentes ---
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Spring usará automáticamente el UserDetailsService y el PasswordEncoder.
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
+    }
+
+    // --- BEAN PARA CONFIGURACIÓN GLOBAL DE CORS ---
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        // Origen permitido (tu frontend React)
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+        // Métodos permitidos (IMPORTANTE incluir OPTIONS)
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        // Cabeceras permitidas (IMPORTANTE incluir Authorization)
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        // Aplicar esta configuración a todas las rutas bajo /api/
+        source.registerCorsConfiguration("/api/**", configuration);
+        return source;
     }
 
     // --- CADENA DE FILTROS DE SEGURIDAD  ---
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // Deshabilitar CSRF (necesario para APIs REST con JWT)
+            // 1. APLICAR LA CONFIGURACIÓN GLOBAL DE CORS
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+            // 2. Deshabilitar CSRF
             .csrf(AbstractHttpConfigurer::disable)
-            
-            // Definir la política de creación de sesión como STATELESS (sin estado)
+
+            // 3. Sesión sin estado
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            
-            // Se elimina la línea .authenticationProvider() ya que Spring lo descubre automáticamente.
-            
-            // Configurar la autorización de peticiones
+
+            // 4. Configurar la autorización
             .authorizeHttpRequests(auth -> auth
-                
+
                 // RUTAS PÚBLICAS
                 .requestMatchers(
-                    "/api/auth/**",       // Login y Register
-                    "/api/productos/**",  
+                    "/api/auth/**",
+                    "/api/productos/**",
                     "/api/categorias/**"
                 ).permitAll()
-                
-                // RUTAS PROTEGIDAS PARA ADMINISTRADOR
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                
+
+                // PERMISO EXPLÍCITO PARA BORRAR USUARIOS (ADMIN)
+                .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/admin/usuarios/**").hasAuthority("ROLE_ADMIN")
+
+                // RUTAS PROTEGIDAS PARA ADMIN
+                .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+
                 // RUTAS PROTEGIDAS (PEDIDOS)
                 .requestMatchers("/api/pedidos/**").authenticated()
 
-                // Cualquier otra petición debe estar autenticada
+                // Cualquier otra petición autenticada
                 .anyRequest().authenticated()
-            );
+            )
+
+            // 5. AÑADIR EL FILTRO DE JWT
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

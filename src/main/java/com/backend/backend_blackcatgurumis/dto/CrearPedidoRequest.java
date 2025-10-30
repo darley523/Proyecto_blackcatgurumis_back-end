@@ -7,5 +7,6 @@ import lombok.Data;
 @Data
 public class CrearPedidoRequest {
     private List<ItemPedidoDto> items;
+    private Long costoEnvio;
 
 }

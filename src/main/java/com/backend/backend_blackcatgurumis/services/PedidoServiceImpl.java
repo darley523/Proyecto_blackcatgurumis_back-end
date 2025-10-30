@@ -35,6 +35,7 @@ public class PedidoServiceImpl implements PedidoService {
     private ProductoService productoService; 
 
     @Override
+    @Transactional(readOnly = true)
     public List<Pedido> obtenerTodosLosPedidos() {
         return pedidoRepository.findAll();
     }
@@ -75,7 +76,7 @@ public class PedidoServiceImpl implements PedidoService {
             // Llama al servicio de producto para descontar stock
             productoService.actualizarStock(producto.getId(), itemDto.getCantidad());
             
-            // Calcula el total
+            // Calcula el total de los productos
             total += (producto.getPrecio() * itemDto.getCantidad());
 
             // Crea la entidad ItemPedido
@@ -89,11 +90,33 @@ public class PedidoServiceImpl implements PedidoService {
             itemsDelPedido.add(itemPedido);
         }
 
+        // Suma el costo de envío al total
+        Long costoEnvio = pedidoRequest.getCostoEnvio();
+        if (costoEnvio != null) {
+            total += costoEnvio;
+        }
+
         // Asigna el total y los items al pedido
         nuevoPedido.setTotal(total);
         nuevoPedido.setItems(itemsDelPedido);
 
         // Guarda el pedido y sus items
         return pedidoRepository.save(nuevoPedido);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Pedido obtenerPedidoPorId(Long id) {
+        return pedidoRepository.findByIdWithItems(id)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado con ID: " + id));
+    }
+
+    @Override
+    @Transactional
+    public Pedido actualizarEstadoPedido(Long id, String estado) {
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado con ID: " + id));
+        pedido.setEstado(estado);
+        return pedidoRepository.save(pedido);
     }
 }

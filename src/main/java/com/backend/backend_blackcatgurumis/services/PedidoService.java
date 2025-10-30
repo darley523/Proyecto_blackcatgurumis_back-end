@@ -8,7 +8,11 @@ public interface PedidoService {
 
     List<Pedido> obtenerTodosLosPedidos();
 
-    List<Pedido> obtenerPedidosPorUsuario(String emailUsuario);
-
-    Pedido crearPedido(CrearPedidoRequest pedidoRequest, String emailUsuario);
-}
+        List<Pedido> obtenerPedidosPorUsuario(String emailUsuario);
+        
+            Pedido crearPedido(CrearPedidoRequest pedidoRequest, String emailUsuario);
+        
+            Pedido obtenerPedidoPorId(Long id);
+        
+            Pedido actualizarEstadoPedido(Long id, String estado);
+        }

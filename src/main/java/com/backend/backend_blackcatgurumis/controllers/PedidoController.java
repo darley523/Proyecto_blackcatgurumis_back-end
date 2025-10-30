@@ -62,4 +62,21 @@ public class PedidoController {
         List<Pedido> pedidos = pedidoService.obtenerTodosLosPedidos();
         return ResponseEntity.ok(pedidos);
     }
+
+    @GetMapping("/admin/pedidos/{id}")
+    public ResponseEntity<Pedido> obtenerPedidoPorId(@PathVariable Long id) {
+        Pedido pedido = pedidoService.obtenerPedidoPorId(id);
+        return ResponseEntity.ok(pedido);
+    }
+
+    /**
+     * Endpoint para actualizar el estado de un pedido (Admin).
+     * PUT /api/admin/pedidos/{id}/estado
+     */
+    @PutMapping("/admin/pedidos/{id}/estado")
+    public ResponseEntity<Pedido> actualizarEstadoPedido(@PathVariable Long id, @RequestBody java.util.Map<String, String> request) {
+        String nuevoEstado = request.get("estado");
+        Pedido pedidoActualizado = pedidoService.actualizarEstadoPedido(id, nuevoEstado);
+        return ResponseEntity.ok(pedidoActualizado);
+    }
 }

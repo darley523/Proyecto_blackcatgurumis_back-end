@@ -33,13 +33,12 @@ public class Pedido {
     private String estado; // Ej: "PENDIENTE", "ENVIADO", "CANCELADO"
     private Long total;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
     // "cascade = CascadeType.ALL" hace que si borras un Pedido, se borren sus items
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference // Maneja la parte "principal" de la relación para JSON
     private List<ItemPedido> items;
 
 }
