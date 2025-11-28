@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,18 +51,21 @@ public class JwtService {
         return generateToken(extraClaims, userDetails); 
     }
 
-    // Este método construye el token final con las claims proporcionadas
+        // Este método construye el token final con las claims proporcionadas
     public String generateToken(
             Map<String, Object> extraClaims,
             UserDetails userDetails
     ) {
+        Instant now = Instant.now();
+        Instant exp = now.plus(20, ChronoUnit.MINUTES); // 20 minutos de validez
+
         return Jwts.builder()
-                .setClaims(extraClaims) // Incluye las claims (ahora con roles)
-                .setSubject(userDetails.getUsername()) // Guarda el email del usuario
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24 horas de validez
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
-                .compact();
+            .setClaims(extraClaims) // Incluye las claims (ahora con roles)
+            .setSubject(userDetails.getUsername()) // Guarda el email del usuario
+            .setIssuedAt(Date.from(now))
+            .setExpiration(Date.from(exp))
+            .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+            .compact();
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
